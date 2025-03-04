@@ -22,13 +22,13 @@ Ensure you have the following installed:
 ### Installation Steps
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-repo/locust-performance-framework.git
-   cd locust-performance-framework
+   git clone git@github.com:Suchi-QA-sys/Delhivery_Local_Load.git
+   cd Delhivery_Local_Load
    ```
 2. Create and activate a virtual environment (optional but recommended):
    ```sh
    python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   source .venv/bin/activate  # It's based on Linux
    ```
 3. Install dependencies:
    ```sh

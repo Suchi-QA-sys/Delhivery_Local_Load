@@ -1,0 +1,4 @@
+.venv
+auth_token.txt
+.idea
+auth.log
