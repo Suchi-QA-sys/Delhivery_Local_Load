@@ -4,10 +4,10 @@ from apis.create_driver import CreateDriverModule
 
 class Runner:
     def __init__(self, user):
-        self.user = user
-        self.auth_module = AuthModule()
-        self.attendance_module = AttendanceModule()
-        self.create_driver_module = CreateDriverModule()
+        self.client = user.client  # Use the client's session
+        self.auth_module = AuthModule(self.client)  # Pass client
+        self.attendance_module = AttendanceModule(self.client)  # Pass client
+        self.create_driver_module = CreateDriverModule(self.client)  # Pass client
         self.token = None  # Token will be set after authentication
 
     def setup_auth(self):
@@ -25,6 +25,6 @@ class Runner:
 
     def run_create_driver(self):
         if not self.token:
-            print("No token available. Skipping attendance marking.")
+            print("No token available. Skipping driver creation.")
             return
         self.create_driver_module.create_driver(self.token)

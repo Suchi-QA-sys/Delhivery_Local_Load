@@ -12,9 +12,10 @@ logging.basicConfig(
 )
 
 class AttendanceModule:
-    def __init__(self):
+    def __init__(self,client):
         base_url = CONFIG["base_url_primary"]
         self.attendance_url = base_url + CONFIG["attendance_endpoint"]
+        self.client = client
 
     def mark_attendance(self, token):
         if not token:
@@ -30,7 +31,7 @@ class AttendanceModule:
         }
 
         if isinstance(token, str) and token.strip():
-            headers["X-COREOS-ACCESS"] = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJBWnhPMFY4OEVWbkZmSGRsSnltVkJVZDktZFJVY1dsMmxaQ3NCYlZEbmh3In0.eyJleHAiOjE3NDExNzE4NDcsImlhdCI6MTc0MTA4NTQ0NywiYXV0aF90aW1lIjoxNzQxMDg1NDQ3LCJqdGkiOiI3ZjI3ODllMy04NmFmLTQzMmItYjVlZi01YWU3NTNkYzVhMjQiLCJpc3MiOiJodHRwczovL2F1dGguZ2V0b3MxLmNvbS9hdXRoL3JlYWxtcy9kZXZlbG9wZXJwbGF0Zm9ybSIsInN1YiI6IjhmOGUyNzg2LTAyYmMtNDg2Mi04MjMzLTE1N2YyNmY4N2UxYyIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwcDo6ZGV2ZWxvcGVycGxhdGZvcm0iLCJzZXNzaW9uX3N0YXRlIjoiZTUxODkwYmMtN2YwNi00NDM0LTkyNTUtYWFmNDRhM2FlNjAyIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwic2NvcGUiOiJvcGVuaWQgZGV2ZWxvcGVyX3BvcnRhbF9hdHRyaWJ1dGVfbWFwcGVyIHByb2ZpbGUgZW1haWwiLCJzaWQiOiJlNTE4OTBiYy03ZjA2LTQ0MzQtOTI1NS1hYWY0NGEzYWU2MDIiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IlNhdmVyaSBTdXNhcmxhIiwicHJlZmVycmVkX3VzZXJuYW1lIjoic3VyeWEuc3VzYXJsYUBkZWxoaXZlcnkuY29tIiwiZ2l2ZW5fbmFtZSI6IlNhdmVyaSIsImZhbWlseV9uYW1lIjoiU3VzYXJsYSIsInVzZXJJZCI6IjhmOGUyNzg2LTAyYmMtNDg2Mi04MjMzLTE1N2YyNmY4N2UxYyIsImVtYWlsIjoic3VyeWEuc3VzYXJsYUBkZWxoaXZlcnkuY29tIn0.HBtwSqq36SR1udmNCjkxjxMpHvRQ8P73QIyY8EPUkbFWi349IG3AmcNmGoPoa50JJd3j0pAmLZ_AgJAeFkgRlA4wvA2W8wjneOkbXRCElvAb-prUJYrW7dLlosEPy2FrFos85ebkslrrHRmc0iEieNHpRebAYmVAFj1wn3Jlsnoit4LklA3-FFUpBvSqu6QONKgja5VGpYtHUB7_7XkAOkpi7Gvq2BT8UFbk3cgkYC69WtFKiO8jMZB-uhMwg_Ob-ey7c0VJYmju7_mMKYfIaBo07gdY3qabDRG3XhJ0IJCRi2RIW_LH3Orgs8Zi6dTbaA4rSplPZvc19gyken0uKw"
+            headers["X-COREOS-ACCESS"] = token
         else:
             logging.error("Invalid or missing authentication token. Cannot proceed with the request.")
             print("Error: Invalid or missing authentication token. Attendance request aborted.")
@@ -53,7 +54,7 @@ class AttendanceModule:
         print(f"Generated cURL: {curl_command}")
 
         try:
-            response = requests.post(self.attendance_url, headers=headers, json=payload)
+            response = self.client.post(self.attendance_url, headers=headers, json=payload)
 
             if response.status_code == 200:
                 logging.info("Attendance marked successfully: %s", response.json())

@@ -12,9 +12,10 @@ class CreateDriverModule(HttpUser):
     wait_time = between(1, 2)  # Adjust wait time as needed
 
 
-    def __init__(self):
+    def __init__(self,client):
         base_url = CONFIG["base_url_primary"]
         self.create_driver_url = base_url + CONFIG["create_driver_endpoint"]
+        self.client = client
 
 
     def create_driver(self,token):
@@ -41,7 +42,7 @@ class CreateDriverModule(HttpUser):
         curl_command = generate_curl("POST", self.create_driver_url, headers, payload)
         logger.info(f"Executing: {curl_command}")
 
-        response = requests.post(self.create_driver_url, json=payload, headers=headers)
+        response = self.client.post(self.create_driver_url, json=payload, headers=headers)
 
         if response.status_code == 202:
             logger.info("Driver created successfully.")

@@ -12,8 +12,9 @@ logging.basicConfig(
 )
 
 class AuthModule:
-    def __init__(self):
+    def __init__(self,client):
         self.auth_url = CONFIG["base_url_primary"] + CONFIG["auth_endpoint"]
+        self.client = client
 
     def get_auth_token(self):
         headers = {
@@ -31,7 +32,7 @@ class AuthModule:
         logging.info("Sending authentication request to: %s", self.auth_url)
 
         try:
-            response = requests.post(self.auth_url, headers=headers, json=payload)
+            response = self.client.post(self.auth_url, headers=headers, json=payload)
             response_data = response.json()
 
             if response.status_code == 200:
