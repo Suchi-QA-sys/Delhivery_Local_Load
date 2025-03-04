@@ -1,0 +1,12 @@
+base_url_primary: "https://delvjkninl.sandbox.getos1.com/"
+enabled_tags: ["auth"]  # Modify to enable/disable specific modules
+attendance_endpoint: "local/api/v1/drivers/attendance"
+auth_endpoint: "/core/api/v1/aaa/auth/client-credentials"
+create_driver_endpoint: "/app/api/v2/users"
+
+auth:
+  request_id: "rudra-postman"
+  tenant_id: "delvjkninl"
+  client_id: "platform:app:service:9a9a2818-d1d3-5aaf-a6a0-251db185b7d1"
+  client_secret: "b01ef601-6c4d-4053-b2d9-f548b1a46b06"
+  audience: "platform:app:coreos"
