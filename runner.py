@@ -1,4 +1,4 @@
-from apis.auth import AuthModule
+from apis.auth_token import AuthModule
 from apis.attendance import AttendanceModule
 from apis.create_driver import CreateDriverModule
 from apis.create_vehicle import CreateVehicleModule

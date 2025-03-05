@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class AuthModule:
     def __init__(self,client):
-        self.auth_url = CONFIG["base_url_primary"] + CONFIG["auth_endpoint"]
+        self.auth_url = CONFIG["base_url_primary"] + CONFIG["auth_task_endpoint"]
         self.client = client
 
     def get_auth_token(self):

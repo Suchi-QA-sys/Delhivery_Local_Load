@@ -16,6 +16,7 @@ class AttendanceModule:
         base_url = CONFIG["base_url_primary"]
         self.attendance_url = base_url + CONFIG["attendance_endpoint"]
         self.client = client
+        self.last_action = "punch_out"
 
     def mark_attendance(self, token):
         if not token:
@@ -40,10 +41,12 @@ class AttendanceModule:
 
         logging.info("Sending attendance marking request to: %s", self.attendance_url)
 
+        self.last_action = "punch_in" if self.last_action == "punch_out" else "punch_out"
+
         payload = {
             "userId": "9fd3c8ba-c43b-40fb-a400-d4537c699821",
             "vehicleId": "vehicles:b513d72b-2247-548b-b6dd-df44833b29a7",
-            "action": "punch_in",
+            "action": self.last_action,
             "lat": 23.040233,
             "long": 72.566623
         }
