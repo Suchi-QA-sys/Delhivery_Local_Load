@@ -1,6 +1,5 @@
 import logging
 from locust import HttpUser, task, between
-import requests
 from utils.config_loader import CONFIG
 from utils.helpers import generate_curl
 

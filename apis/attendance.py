@@ -41,8 +41,8 @@ class AttendanceModule:
         logging.info("Sending attendance marking request to: %s", self.attendance_url)
 
         payload = {
-            "userId": "2a2af622-28d7-4d8f-b622-075b2bacb6cf",
-            "vehicleId": "vehicles:fa3594cf-b8e1-5aef-889a-25413deec8dd",
+            "userId": "9fd3c8ba-c43b-40fb-a400-d4537c699821",
+            "vehicleId": "vehicles:b513d72b-2247-548b-b6dd-df44833b29a7",
             "action": "punch_in",
             "lat": 23.040233,
             "long": 72.566623

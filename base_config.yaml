@@ -1,8 +1,9 @@
 base_url_primary: "https://delvjkninl.sandbox.getos1.com/"
-enabled_tags: ["auth"]  # Modify to enable/disable specific modules
+enabled_tags: ["vehicle","order"]
 attendance_endpoint: "local/api/v1/drivers/attendance"
 auth_endpoint: "core/api/v1/aaa/auth/client-credentials"
 create_driver_endpoint: "app/api/v2/users"
+create_vehicle_endpoint: "app/api/v2/vehicles"
 
 auth:
   request_id: "rudra-postman"

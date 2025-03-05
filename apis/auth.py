@@ -1,15 +1,11 @@
 import requests
-import json
 import logging
 from utils.config_loader import CONFIG
 from utils.file_writer import write_to_file
+from utils.helpers import generate_curl
 
-# Configure logging
-logging.basicConfig(
-    filename="auth.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class AuthModule:
     def __init__(self,client):
@@ -34,6 +30,9 @@ class AuthModule:
         try:
             response = self.client.post(self.auth_url, headers=headers, json=payload)
             response_data = response.json()
+
+            curl_command = generate_curl("POST", self.auth_url, headers, payload)
+            logger.info(f"Executing: {curl_command}")
 
             if response.status_code == 200:
                 token = response_data.get("data", {}).get("accessToken")
