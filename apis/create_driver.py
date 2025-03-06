@@ -1,7 +1,9 @@
 import logging
-from locust import HttpUser, task, between
+from locust import HttpUser, between
 from utils.config_loader import CONFIG
-from utils.helpers import generate_curl
+from utils.helpers import generate_curl,generate_13_digit_number
+from utils.file_writer import write_to_file
+import json
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,9 +14,13 @@ class CreateDriverModule(HttpUser):
 
 
     def __init__(self,client):
-        base_url = CONFIG["base_url_primary"]
+        base_url = CONFIG["base_url_sandbox"]
         self.create_driver_url = base_url + CONFIG["create_driver_endpoint"]
         self.client = client
+        self.teamid = CONFIG["teams"]["team_id"]
+        self.tID = CONFIG["rider"]["x_coreos_tid"]
+        
+    
 
 
     def create_driver(self,token):
@@ -25,17 +31,31 @@ class CreateDriverModule(HttpUser):
             return
 
         headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
+            "x-coreos-access": f"{token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-coreos-request-id": "b26af3a5a1914c158ce4db5a1b81ec59",
+            "x-coreos-tid":"delvjkninl",
+            "x-coreos-userinfo":json.dumps({"name":"IshanJain","id":"07fa25fb-822a-4a87-9920-10ae54125622"}),
         }
+
+
+        random_number = generate_13_digit_number()
+        random_usercode = generate_13_digit_number()
         payload = {
-            "firstName": "Test",
-            "lastName": "Driver",
-            "primaryMobile": {"countryCode": "+91", "number": "9876543210"},
-            "teams": ["teams:59d75559-a342-58f3-ad9b-c55f1dcc7c24", "teams:3f8a2ef7-148e-5f61-a8a8-59137e701022"],
+            "firstName": "test rider",
+            "lastName": random_number,
+            "primaryMobile": {
+                "countryCode": "+91",
+                "number": random_number
+            },
+            "teams": [
+                self.teamid
+            ],
             "employmentType": "Full-time",
             "designation": "Field Executive",
-            "category": "Adhoc"
+            "category": "Adhoc",
+            "userCode": random_usercode+"script"
         }
 
         curl_command = generate_curl("POST", self.create_driver_url, headers, payload)
@@ -44,6 +64,8 @@ class CreateDriverModule(HttpUser):
         response = self.client.post(self.create_driver_url, json=payload, headers=headers)
 
         if response.status_code == 202:
+            driver_id = response.json().get("data",{}).get("id",{})
+            write_to_file("driver_created", f"{driver_id},")
             logger.info("Driver created successfully.")
         else:
             logger.error(f"Driver creation failed: {response.status_code}, Response: {response.text}")

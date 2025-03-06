@@ -67,6 +67,6 @@ class CreateOrderModule(HttpUser):
         if response.status_code == 201:
             logger.info("Order created successfully.")
             order_id = response.json().get("data",{}).get("order_id",{})
-            write_to_file("orders_created", f"Order Number: {order_id}\n")
+            write_to_file("orders_created", f"{order_id},")
         else:
             logger.error(f"Order creation failed: {response.status_code}, Response: {response.text}")
