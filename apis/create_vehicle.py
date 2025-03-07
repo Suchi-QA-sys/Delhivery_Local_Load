@@ -1,7 +1,10 @@
 import logging
 from locust import HttpUser, between
+import json
 from utils.config_loader import CONFIG
 from utils.helpers import generate_curl
+from utils.file_reader import get_latest_entry_with_value
+from utils.file_writer import update_json_value
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -13,23 +16,38 @@ class CreateVehicleModule(HttpUser):
         base_url = CONFIG["base_url_primary"]
         self.create_vehicle_url = base_url + CONFIG["create_vehicle_endpoint"]
         self.client = client
+        self.teamid = CONFIG["teams"]["team_id"]
+        self.tID = CONFIG["rider"]["x_coreos_tid"]
+        self.rider_id = get_latest_entry_with_value("driver_created.json","Synced")
 
     def create_vehicle(self, token):
         if not token:
             logger.error("Error: No authentication token provided. Vehicle creation aborted.")
             return
 
-        token = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLSWo2OFA0STMwZHFSR2pudmtXdmE2WFluMGY2WldlUmlNdC01OUdpMWRJIn0.eyJleHAiOjE3NDEyNDE0MzgsImlhdCI6MTc0MTE1NTI1MywiYXV0aF90aW1lIjoxNzQxMTU1MDM4LCJqdGkiOiI5NGU1MTZhOS05OGRkLTRhYmUtOTliOC1hNGRiMGM3NTY3ZmMiLCJpc3MiOiJodHRwczovL2F1dGgtc2IxLnNhbmRib3guZ2V0b3MxLmNvbS9hdXRoL3JlYWxtcy9kZWx2amtuaW5sIiwiYXVkIjpbInBsYXRmb3JtOmFwcDpzZXJ2aWNlOjEwMTJjZWQ0LWQ5MGYtNTAyMi05NTNlLWY4OGVhMjU2M2RmNiIsInBsYXRmb3JtOmFwcDpzZXJ2aWNlOjM5NDJkYWJlLTIxNDYtNWUwOC1hOTQ5LWQ0OTViZGRhODExZiIsInBsYXRmb3JtOmFwcDpzZXJ2aWNlOjUwYTgzNzBiLWRiNjQtNTA2NS1hOWZiLTgyZjUyN2FmZjNhZCIsInBsYXRmb3JtOmFwcDpvcmRlci1mcGEtd3JhcHBlci1hcGkiLCJwbGF0Zm9ybTphcHA6bG9naXN0aWNzb3JkZXJzZnBhLWJhY2tlbmQiLCJtdGZaclBjeENLNnM0QTN6eFAzeHhEVnN0Vk5LdjhtVyIsInBsYXRmb3JtOmFwcDpidXNpbmVzcy1jb25mLWZwYS1hcGkiLCJwbGF0Zm9ybTphcHA6c2VydmljZTo4YTU5MTdkMy1lZGZlLTVjNWYtODY3MC1lMGUwOGNlZWUwYjUiLCJ5UDlPM1lyWnhuZ3dBM1JCcWZNM1BlQW1acEw0eTFneSIsInBsYXRmb3JtOmFwcDpnZW5pbiIsInBsYXRmb3JtOmFwcDpub3RpZmljYXRpb24tYnVpbGRlciIsIm9TTzhhck1QTWRneXl1Sk12c3ZpQVpJTEtuYmhYWmZkIiwicGxhdGZvcm06YXBwOnNlcnZpY2U6ZTYxOGZhNWEtMDExYy01OTc1LWEwNTktZjU2NjcyYjAxYmJlIiwicGxhdGZvcm06YXBwOnNlcnZpY2U6MTc3NjdiZTMtMzg2OC01MmMyLThkNzUtNjc5M2ZjN2FkM2Y3IiwicGxhdGZvcm06YXBwOmtvbm9oYSIsInBsYXRmb3JtOmFwcDpub3RpZmljYXRpb24tc2VydmljZSIsInBsYXRmb3JtOmFwcDpzZXJ2aWNlOmJhMWYxM2NhLTQ0NjYtNTE2YS1iYWVmLWU3NGQ4NTJhNzI4MyIsIlE5dnJ6U3dXYkp4N2czRUJCTDJVT2FIMkpCTXJHc3hHIiwicGxhdGZvcm06YXBwOnNlcnZpY2U6MzE3MjhjY2MtNmRiZi01ZTI0LWFkYzgtNTYxZmUxNmVjYjg0Il0sInN1YiI6ImVmMzU0NjhjLWJiZGQtNDZhOC05ZjA0LTZiNjljYzM4MGM4MSIsInR5cCI6IkJlYXJlciIsImF6cCI6InBsYXRmb3JtOmFwcDpjbGllbnQ6YmRlZjg5Y2UtZWIyZi01N2RmLTk1ZjAtMmFlZTZmNWNiYjY3Iiwic2Vzc2lvbl9zdGF0ZSI6ImM0MTQ0YTM1LTU0NGQtNGJkNi05NmZiLTczMjEzNmE0ZTU3NiIsImFjciI6IjAiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cHM6Ly9kZWx2amtuaW5sLWNkZXYuc2FuZGJveC5nZXRvczEuY29tIiwiaHR0cHM6Ly9kZWx2amtuaW5sLnNhbmRib3guZ2V0b3MxLmNvbSIsImh0dHBzOi8vbG9jYWwuc2FuZGJveC5nZXRvczEuY29tIl0sInJlc291cmNlX2FjY2VzcyI6eyJwbGF0Zm9ybTphcHA6c2VydmljZToxMDEyY2VkNC1kOTBmLTUwMjItOTUzZS1mODhlYTI1NjNkZjYiOnsicm9sZXMiOlsiUm9sZTphbmFseXRpY3MtZnBhOmFuYWx5dGljcy1mcGEtdmlld2VyIl19LCJwbGF0Zm9ybTphcHA6c2VydmljZTozOTQyZGFiZS0yMTQ2LTVlMDgtYTk0OS1kNDk1YmRkYTgxMWYiOnsicm9sZXMiOlsiUm9sZTpkbHZsb2NhbC12ZWhpY2xlLWFwcDp2ZWhpY2xlLXNlcnZpY2UtcmVhZC1vbmx5Il19LCJwbGF0Zm9ybTphcHA6c2VydmljZTo1MGE4MzcwYi1kYjY0LTUwNjUtYTlmYi04MmY1MjdhZmYzYWQiOnsicm9sZXMiOlsiUm9sZTpkbHZsb2NhbC1kcml2ZXItc2VydmljZTpkcml2ZXItc2VydmljZS1hZG1pbiJdfSwicGxhdGZvcm06YXBwOm9yZGVyLWZwYS13cmFwcGVyLWFwaSI6eyJyb2xlcyI6WyJSb2xlOm9yZGVyLWZwYS13cmFwcGVyLWFwaTphZG1pbi1yb2xlIl19LCJwbGF0Zm9ybTphcHA6bG9naXN0aWNzb3JkZXJzZnBhLWJhY2tlbmQiOnsicm9sZXMiOlsiUm9sZTpsb2dpc3RpY3Mtb3JkZXJzLWZwYTpvcmRlci1mcGEtYWRtaW4iXX0sIm10ZlpyUGN4Q0s2czRBM3p4UDN4eERWc3RWTkt2OG1XIjp7InJvbGVzIjpbIlJvbGU6cGFydGljaXBhbnQtZnBhOnBhcnRpY2lwYW50LWZwYS1hZG1pbiJdfSwicGxhdGZvcm06YXBwOmJ1c2luZXNzLWNvbmYtZnBhLWFwaSI6eyJyb2xlcyI6WyJSb2xlOmJ1c2luZXNzLWNvbmYtZnBhLWFwaTpCdXNpbmVzcy1Db25mLUNyZWF0b3ItVmlld2VyIl19LCJwbGF0Zm9ybTphcHA6c2VydmljZTo4YTU5MTdkMy1lZGZlLTVjNWYtODY3MC1lMGUwOGNlZWUwYjUiOnsicm9sZXMiOlsiUm9sZTpldGEtdHJhY2tpbmc6bG9jYWwtZXRhLXRyYWNraW5nIiwiUm9sZTpldGEtdHJhY2tpbmc6c3RvcC10cmFjayIsIlJvbGU6ZXRhLXRyYWNraW5nOmxvY2F0aW9uLXJlYWQiXX0sInlQOU8zWXJaeG5nd0EzUkJxZk0zUGVBbVpwTDR5MWd5Ijp7InJvbGVzIjpbIlJvbGU6c2VydmljZS1vZmZlcmluZy1mcGE6c2VydmljZS1vZmZlcmluZy1mcGEtYWRtaW4iXX0sInBsYXRmb3JtOmFwcDpnZW5pbiI6eyJyb2xlcyI6WyJSb2xlOnRoaXJkLXBhcnR5LXBsdWdpbnMtZnBhOmdlbmluLXVzZXIiXX0sInBsYXRmb3JtOmFwcDpub3RpZmljYXRpb24tYnVpbGRlciI6eyJyb2xlcyI6WyJSb2xlOm5vdGlmaWNhdGlvbi1idWlsZGVyLWZwYTphZG1pbi1yb2xlIl19LCJvU084YXJNUE1kZ3l5dUpNdnN2aUFaSUxLbmJoWFpmZCI6eyJyb2xlcyI6WyJSb2xlOmRpc3BhdGNoLWZwYTphZG1pbi1yb2xlIl19LCJwbGF0Zm9ybTphcHA6c2VydmljZTplNjE4ZmE1YS0wMTFjLTU5NzUtYTA1OS1mNTY2NzJiMDFiYmUiOnsicm9sZXMiOlsiUm9sZTpkbHZsb2NhbC1vcmRlci1mcGE6b3JkZXItZnBhLWFkbWluIl19LCJwbGF0Zm9ybTphcHA6c2VydmljZToxNzc2N2JlMy0zODY4LTUyYzItOGQ3NS02NzkzZmM3YWQzZjciOnsicm9sZXMiOlsiUm9sZTpmZWF0dXJlLWZsYWctZnBhOmZlYXR1cmUtZmxhZ3Mtdmlld2VyIl19LCJwbGF0Zm9ybTphcHA6a29ub2hhIjp7InJvbGVzIjpbIlJvbGU6cmJjci1mcGE6a29ub2hhLXVzZXIiXX0sInBsYXRmb3JtOmFwcDpub3RpZmljYXRpb24tc2VydmljZSI6eyJyb2xlcyI6WyJSb2xlOm5vdGlmaWNhdGlvbi1zZXJ2aWNlLWZwYTphZG1pbi1yb2xlIl19LCJwbGF0Zm9ybTphcHA6c2VydmljZTpiYTFmMTNjYS00NDY2LTUxNmEtYmFlZi1lNzRkODUyYTcyODMiOnsicm9sZXMiOlsiUm9sZTp0ZW5hbnQtdWktY29uZmlnOmZldGNoLXVpLWNvbmZpZyJdfSwiUTl2cnpTd1diSng3ZzNFQkJMMlVPYUgySkJNckdzeEciOnsicm9sZXMiOlsiUm9sZTpjb250YWluZXItZnBhLWFwaTpjb250YWluZXItZnBhLXNoaXBtZW50LW9wcy12aWV3ZXIiXX0sInBsYXRmb3JtOmFwcDpzZXJ2aWNlOjMxNzI4Y2NjLTZkYmYtNWUyNC1hZGM4LTU2MWZlMTZlY2I4NCI6eyJyb2xlcyI6WyJSb2xlOmRsdmxvY2FsLW5vdGlmaWNhdGlvbi1zZXJ2aWNlOndyaXRlLWV2ZW50Il19fSwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBjb3Jlb3MgZW1haWwiLCJzaWQiOiJjNDE0NGEzNS01NDRkLTRiZDYtOTZmYi03MzIxMzZhNGU1NzYiLCJ0ZW5hbnRVdWlkIjoidGVuYW50czplM2Y2MTI2NS1kMWUzLTU4MGEtOTIwYS0zMDljNmY3ZjcxZjciLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwidHoiOiJBc2lhL0tvbGthdGEiLCJodHRwczovL2RlbGhpdmVyeS5jb20vdGVuYW50SWQiOiJkZWx2amtuaW5sIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiKzkxODk4OTg5NzY1NCIsImdpdmVuX25hbWUiOiJTdWNoaW50YW4iLCJ1c2VySWQiOiJkYTZkZjY2ZS0xNDIwLTRlNTMtOGQ4My1lODJkNjRiZjVmZDAiLCJzZWN1cml0eUxldmVsIjoiT1BFTiIsImhvc3RuYW1lIjoic2FuZGJveC5nZXRvczEuY29tIiwiYXBwSWQiOiJwbGF0Zm9ybTphcHA6YmRlZjg5Y2UtZWIyZi01N2RmLTk1ZjAtMmFlZTZmNWNiYjY3LWNsaWVudCIsIm5hbWUiOiJTdWNoaW50YW4iLCJ0ZW5hbnRJZCI6ImRlbHZqa25pbmwiLCJodHRwczovL2RlbGhpdmVyeS5jb20vdXNlcklkIjoiZGE2ZGY2NmUtMTQyMC00ZTUzLThkODMtZTgyZDY0YmY1ZmQwIiwiZW1haWwiOiJzdWNoaW50YW4uZGFzQGRlbGhpdmVyeS5jb20ifQ.Ht2zPgEitPDvV68NSwdns8Yc0CdxUbnRxpdeTXGGy2HOEyVVC_G8zy8Bs0EV8WQDZOB5WPp4BmCIeqVKrgbIHANmILXek5GzA4GVb9Xn0f19Ye-dPd6AhNlN-nNvYIGFJvQNKWR5keccoPPF_0--MmHbqtYh4GMmdaITIWoz4ieSjCZCB1Gk7J_jUXwJASHnR09qyAExYOn-E9cbbYiOvyssReb2hcYAaZzUp5fhBb17yosM3OFnW6fNiVVYqtMkl3SzPgW4UC8wBUIbM-c0sff5JH-3C4Y79VEv2-fJid_7p0JJWexZXuLvntdDIDw8DSAH4tmKB_tgw2Fi3bSl1w"
-
         headers = {
-            "Authorization": f"Bearer {token}",
+            "x-coreos-access": f"{token}",
             "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-coreos-request-id": "OS1-RequestId:-81bfd767-6647-4632-86f7-6362724fd626",
+            "x-coreos-tid":self.tID,
+            "x-coreos-userinfo":json.dumps({"id":"07fa25fb-822a-4a87-9920-10ae54125622","name":"Ishan Jain"}),
         }
         payload = {
-            "registrationNumber": "AB123CD",
-            "vehicleType": "Truck",
-            "capacity": 10000,
-            "owner": "CompanyX"
+            "registrationNumber": "38398293",
+            "fuelType": "Diesel",
+            "vehicleMode": "Road",
+            "ownershipType": "Tenant",
+            "driverID": self.rider_id,
+            "teams": [
+                self.teamid
+            ],
+            "payload": 1000,
+            "payloadVolumetric": 1500000,
+            "vehicleCategory": "LCV",
+            "vehicleSubCategory": "Auto Truck__Diesel__",
+            "modelName": "Ape Xtra LDX",
+            "referenceNumber": "38398293"
         }
 
         curl_command = generate_curl("POST", self.create_vehicle_url, headers, payload)
@@ -38,6 +56,7 @@ class CreateVehicleModule(HttpUser):
         response = self.client.post(self.create_vehicle_url, json=payload, headers=headers)
 
         if response.status_code == 202:
+            update_json_value("driver_created",self.rider_id,"Synced")
             logger.info("Vehicle created successfully.")
         else:
             logger.error(f"Vehicle creation failed: {response.status_code}, Response: {response.text}")

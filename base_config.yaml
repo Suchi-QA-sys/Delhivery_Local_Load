@@ -5,7 +5,7 @@ base_url_os1_sandbox : "https://os1devs.sandbox.getos1.com/"
 base_url_sandbox: "https://local.sandbox.getos1.com/"
 
 #configuration
-enabled_tags: ["driver"]
+enabled_tags: ["vehicle"]
 
 #endpoints
 attendance_endpoint: "local/api/v1/drivers/attendance"

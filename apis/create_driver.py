@@ -2,7 +2,7 @@ import logging
 from locust import HttpUser, between
 from utils.config_loader import CONFIG
 from utils.helpers import generate_curl,generate_13_digit_number
-from utils.file_writer import write_to_file
+from utils.file_writer import append_to_json
 import json
 
 
@@ -65,7 +65,7 @@ class CreateDriverModule(HttpUser):
 
         if response.status_code == 202:
             driver_id = response.json().get("data",{}).get("id",{})
-            write_to_file("driver_created", f"{driver_id},")
+            append_to_json("driver_created", driver_id, "Not Synced")
             logger.info("Driver created successfully.")
         else:
             logger.error(f"Driver creation failed: {response.status_code}, Response: {response.text}")

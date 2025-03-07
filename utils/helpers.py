@@ -20,4 +20,4 @@ def generate_13_digit_number():
     timestamp_ms = int(time.time() * 1000)  # Current timestamp in milliseconds (first 10 digits)
     random_part = random.randint(100, 999)  # Random 3-digit number
 
-    return str(timestamp_ms)[:10] + str(random_part)  # Ensures exactly 13 digits
+    return str(timestamp_ms)[:10] + str(random_part)  

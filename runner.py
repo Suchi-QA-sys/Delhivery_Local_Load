@@ -4,12 +4,14 @@ from apis.create_driver import CreateDriverModule
 from apis.create_vehicle import CreateVehicleModule
 from apis.create_order import CreateOrderModule
 from apis.rider_token import RiderAuthModule
+from apis.vehicle_token import VehicleAuthModule
 
 class Runner:
     def __init__(self, user):
         self.client = user.client
         self.auth_module = AuthModule(self.client)  
         self.rider_auth_module = RiderAuthModule(self.client)
+        self.vehicle_auth_module = VehicleAuthModule(self.client)
         self.attendance_module = AttendanceModule(self.client)  
         self.create_driver_module = CreateDriverModule(self.client,)
         self.create_vehicle_module = CreateVehicleModule(self.client)
@@ -27,8 +29,15 @@ class Runner:
         if not self.rider_token:
             print("Authentication failed. No Rider token received.")
         else:
-            print(f"Rider Token fetched successfully: {self.token}")
+            print(f"Rider Token fetched successfully: {self.rider_token}")
 
+
+        self.vehicle_token = self.vehicle_auth_module.get_vehicle_token()
+        if not self.vehicle_token:
+            print("Authentication failed. No Rider token received.")
+        else:
+            print(f"Rider Token fetched successfully: {self.vehicle_token}")
+            
     def run_attendance(self):
         if not self.token:
             print("No token available. Skipping attendance marking.")
@@ -45,7 +54,7 @@ class Runner:
         if not self.token:
             print("No token available. Skipping driver creation.")
             return
-        self.create_vehicle_module.create_vehicle(self.token)
+        self.create_vehicle_module.create_vehicle(self.vehicle_token)
 
     def run_create_order(self):
         if not self.token:
