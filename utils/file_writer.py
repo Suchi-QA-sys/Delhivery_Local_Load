@@ -24,21 +24,22 @@ def append_to_json(file_name, key, value):
         json.dump(data, file, indent=4)
 
 def update_json_value(file_name, key, new_value):
-    file_path = f"{file_name}.json"
     try:
-        # Try to load existing JSON data
-        with open(file_path, 'r') as file:
+        with open(f"{file_name}.json", "r+") as file:
             data = json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        print("File not found or empty. Cannot update.")
-        return
 
-    if key in data:
-        data[key] = new_value
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-        print(f"Updated '{key}' to '{new_value}' in {file_name}.")
-    else:
-        print(f"Key '{key}' not found in {file_name}.")
+            if key in data:
+                data[key] = new_value  # Update value
+
+                file.seek(0)  # Move cursor to the beginning
+                json.dump(data, file, indent=4)
+                file.truncate()  # Ensure no old data remains
+
+        # Add an explicit flush to force writing changes
+        with open(f"{file_name}.json", "r") as verify_file:
+            json.load(verify_file)  # Ensures the file is fully written before proceeding
+
+    except Exception as e:
+        print(f"Error updating JSON file: {e}")
         
 

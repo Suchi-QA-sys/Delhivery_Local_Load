@@ -65,7 +65,7 @@ class CreateDriverModule(HttpUser):
 
         if response.status_code == 202:
             driver_id = response.json().get("data",{}).get("id",{})
-            append_to_json("driver_created", driver_id, "Not Synced")
+            append_to_json("rider_vehicle_mapping", driver_id, "Not Synced")
             logger.info("Driver created successfully.")
         else:
             logger.error(f"Driver creation failed: {response.status_code}, Response: {response.text}")

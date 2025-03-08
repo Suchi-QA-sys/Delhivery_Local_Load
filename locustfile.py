@@ -32,10 +32,11 @@ class LoadTest(HttpUser):
     @tag("vehicle")
     def create_vehicle(self):
         if "vehicle" in self.ENABLED_TAGS:
+            logger.info("Inside")
             self.runner.run_create_vehicle()
 
     @task
     @tag("order")
-    def create_vehicle(self):
+    def create_order(self):
         if "order" in self.ENABLED_TAGS:
             self.runner.run_create_order()
