@@ -5,9 +5,12 @@ from apis.create_vehicle import CreateVehicleModule
 from apis.create_order import CreateOrderModule
 from apis.rider_token import RiderAuthModule
 from apis.vehicle_token import VehicleAuthModule
+from flows.order_happy_flow import OrderHappyFlow
+from utils.file_reader import get_json_entries_based_on_index
 
 class Runner:
     def __init__(self, user):
+        self.riders_vehicles = None
         self.client = user.client
         self.auth_module = AuthModule(self.client)  
         self.rider_auth_module = RiderAuthModule(self.client)
@@ -16,6 +19,7 @@ class Runner:
         self.create_driver_module = CreateDriverModule(self.client,)
         self.create_vehicle_module = CreateVehicleModule(self.client)
         self.create_order_module = CreateOrderModule(self.client)
+        self.order_happy_flow_module = OrderHappyFlow(self.client)
         self.token = None  
 
     def setup_auth(self):
@@ -38,11 +42,12 @@ class Runner:
         else:
             print(f"Rider Token fetched successfully: {self.vehicle_token}")
             
-    def run_attendance(self):
+    def run_attendance(self,index):
         if not self.token:
             print("No token available. Skipping attendance marking.")
             return
-        self.attendance_module.mark_attendance(self.token)
+        self.riders_vehicles = get_json_entries_based_on_index("rider_vehicle_mapping",index)
+        self.attendance_module.mark_attendance(self.token,self.riders_vehicles[0],self.riders_vehicles[1],23.040233,72.566623)
 
     def run_create_driver(self):
         if not self.token:
@@ -61,3 +66,6 @@ class Runner:
             print("No token available. Skipping driver creation.")
             return
         self.create_order_module.create_order(self.token)
+        
+    def run_order_happy_flow(self):
+        self.order_happy_flow_module.run_order_flow(self.token,self.rider_token)

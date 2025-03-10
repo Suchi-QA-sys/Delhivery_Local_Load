@@ -25,3 +25,32 @@ def get_latest_entry_with_value(file_name,value,avoid_values):
     except (FileNotFoundError, json.JSONDecodeError) as e:
         logger.error(f"Error reading JSON file: {e}")
         return None
+
+def get_json_entries_based_on_index(file_name, index):
+    file_path = f"{file_name}.json"
+    try:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+
+        # Ensure data is a dictionary
+        if not isinstance(data, dict):
+            logger.error("Invalid JSON structure: Expected a dictionary.")
+            return None
+
+        # Convert dictionary items into a list
+        items_list = list(data.items())
+
+        # Check if index is within range
+        if index < 0 or index >= len(items_list):
+            logger.error(f"Index {index} is out of range.")
+            return None
+
+        # Fetch the key-value pair at the specified index
+        result = list(items_list[index])
+
+        logger.info(f"Extracted key-value pair at index {index}: {result}")
+        return result
+
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logger.error(f"Error reading JSON file: {e}")
+        return None

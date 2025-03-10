@@ -16,9 +16,9 @@ class AttendanceModule:
         base_url = CONFIG["base_url_primary"]
         self.attendance_url = base_url + CONFIG["attendance_endpoint"]
         self.client = client
-        self.last_action = "punch_out"
+        self.last_action = "punch_in"
 
-    def mark_attendance(self, token):
+    def mark_attendance(self, token,userID, vehicleID, lat, long):
         if not token:
             logging.error("Error: No authentication token provided. Attendance request aborted.")
             print("Error: No authentication token provided. Attendance request aborted.")
@@ -41,14 +41,14 @@ class AttendanceModule:
 
         logging.info("Sending attendance marking request to: %s", self.attendance_url)
 
-        self.last_action = "punch_in" if self.last_action == "punch_out" else "punch_out"
+        # self.last_action = "punch_in" if self.last_action == "punch_out" else "punch_out"
 
         payload = {
-            "userId": "9fd3c8ba-c43b-40fb-a400-d4537c699821",
-            "vehicleId": "vehicles:b513d72b-2247-548b-b6dd-df44833b29a7",
+            "userId": userID,
+            "vehicleId": vehicleID,
             "action": self.last_action,
-            "lat": 23.040233,
-            "long": 72.566623
+            "lat": lat,
+            "long": long
         }
 
         # Log the generated cURL command
@@ -66,6 +66,6 @@ class AttendanceModule:
                 logging.error("Error marking attendance. Status Code: %s, Response: %s", response.status_code, response.text)
                 print(f"Error marking attendance: {response.status_code}, Response: {response.text}")
 
-        except requests.RequestException as e:
+        except self.client.RequestException as e:
             logging.exception("Error occurred while making attendance request: %s", str(e))
             print("Error: Unable to mark attendance. Please check logs for details.")

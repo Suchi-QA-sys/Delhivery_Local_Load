@@ -6,7 +6,8 @@ base_url_sandbox: "https://local.sandbox.getos1.com/"
 base_url_vehicle: "https://delvjkninl.sandbox.getos1.com/"
 
 #configuration
-enabled_tags: ["order"]
+enabled_tags: ["OrderAllocationFlow"]
+base_riders_vehicles: 3
 
 #endpoints
 attendance_endpoint: "local/api/v1/drivers/attendance"
@@ -14,8 +15,9 @@ auth_task_endpoint: "core/api/v1/aaa/auth/client-credentials"
 create_driver_endpoint: "app/api/v2/users"
 create_vehicle_endpoint: "app/api/v2/vehicles"
 create_order_endpoint: "api/dlvlocal/v2/package"
-create_dispatch_endpoint: "/app/fpa/dispatch/graphql"
+create_dispatch_endpoint: "app/fpa/dispatch/graphql"
 get_order_id_endpoint: "local/api/v1/order-service/orders/es"
+create_traces_endpoint: "/ocal/api/track/v1/smart-phone"
 
 
 #critical creds
