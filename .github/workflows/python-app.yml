@@ -30,4 +30,4 @@ jobs:
 
       - name: Run Locust Test
         run: |
-          locust -f locustfile.py --headless -u 10 -r 2 --run-time 5m --host=https://delvjkninl.sandbox.getos1.com/
+          locust -f locustfile.py --headless -u 10 -r 2 --run-time 3m --host=https://delvjkninl.sandbox.getos1.com/
