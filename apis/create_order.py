@@ -109,14 +109,14 @@ class CreateOrderModule(HttpUser):
         if response.status_code == 200:
             logger.info("Got order id api response successfully.")
             main_order_data= response.json().get("data",{})
-            write_to_file("orders_created_previous_api", f"{od_id}")
+            write_to_file("orders_created", f"{od_id}")
 
             for order_details in main_order_data:
                 if order_details.get("clientDetails",{}).get("clientOrderId") == od_id:
                     main_order_id = order_details.get("orderId",{})
                     job_id = order_details.get("workOrders")[0].get("attributes",{}).get("jobId")
                     logger.info(f"Main ID and Job ID is {main_order_id} - {job_id}")
-                    write_to_file("orders_created", f"{main_order_id} - {od_id} - {job_id},")
+                    write_to_file("orderid_orderNumber_jobid_mapping", f"{main_order_id} - {od_id} - {job_id},")
             
         else:
             logger.error(f"Order creation failed: {response.status_code}, Response: {response.text}")

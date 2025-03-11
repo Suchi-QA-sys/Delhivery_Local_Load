@@ -28,7 +28,7 @@ class InsertTrackTracesModule(HttpUser):
         self.get_vehicle_number_module = GetVehicleNumberModule(self.client)
         
 
-    def insert_traces(self,token, track_id, rider_id):
+    def insert_traces(self,token, track_id, rider_id,lat,long):
         if not token:
             logging.error("Error: No authentication token provided. Tracking request aborted.")
             print("Error: No authentication token provided. Tracking request aborted.")
@@ -52,8 +52,8 @@ class InsertTrackTracesModule(HttpUser):
                         "accuracy": 1.8,
                         "distance": 0.0,
                         "isMobile": True,
-                        "lat": 23.122252,
-                        "lon": 72.580643,
+                        "lat": lat,
+                        "lon": long,
                         "provider": "fused",
                         "speed": 0.0
                     }
@@ -83,7 +83,7 @@ class InsertTrackTracesModule(HttpUser):
 
             
 
-    def create_track(self, token, rider_id, vehicle_id):
+    def create_track(self, token, rider_id, vehicle_id,lat,long):
         if not token:
             logging.error("Error: No authentication token provided. Tracking request aborted.")
             print("Error: No authentication token provided. Tracking request aborted.")
@@ -116,7 +116,7 @@ class InsertTrackTracesModule(HttpUser):
                 logging.info("Smartphone tracking successful: %s", response.json())
                 track_id = response.json().get("data",{}).get("track_id")
                 time.sleep(5)
-                self.insert_traces(token,track_id,rider_id)
+                self.insert_traces(token,track_id,rider_id,lat,long)
                 print("Smartphone tracking successful:", response.json())
             else:
                 logging.error("Error in smartphone tracking. Status Code: %s, Response: %s", response.status_code, response.text)

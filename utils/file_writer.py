@@ -1,5 +1,12 @@
+import os
+
 def write_to_file(file_name, content):
-    file_path = f"{file_name}.txt"
+    # Ensure the "data" directory exists
+    data_dir = "data"
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Define the full file path inside the "data" directory
+    file_path = os.path.join(data_dir, f"{file_name}.txt")
 
     with open(file_path, "a") as file:  # Open in append mode
         file.write(content + "\n")
@@ -9,7 +16,12 @@ def write_to_file(file_name, content):
 import json
 
 def append_to_json(file_name, key, value):
-    file_path = f"{file_name}.json"
+    # Ensure the "data" directory exists
+    data_dir = "data"
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Define the full file path inside the "data" directory
+    file_path = os.path.join(data_dir, f"{file_name}.json")
     try:
         # Try to load existing JSON data
         with open(file_path, 'r') as file:
@@ -25,7 +37,13 @@ def append_to_json(file_name, key, value):
 
 def update_json_value(file_name, key, new_value):
     try:
-        with open(f"{file_name}.json", "r+") as file:
+        # Ensure the "data" directory exists
+        data_dir = "data"
+        os.makedirs(data_dir, exist_ok=True)
+    
+        # Define the full file path inside the "data" directory
+        file_path = os.path.join(data_dir, f"{file_name}.json")
+        with open(file_path, "r+") as file:
             data = json.load(file)
 
             if key in data:

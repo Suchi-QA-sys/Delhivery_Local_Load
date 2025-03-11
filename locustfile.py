@@ -1,7 +1,10 @@
+import random
+
 from locust import HttpUser, task, between, tag
 from runner import Runner
 from utils.config_loader import CONFIG
 from flows.setup_flows import setup_initial_data
+from utils.file_reader import get_json_entries_based_on_index
 import threading
 import time
 import logging
@@ -29,16 +32,30 @@ class LoadTest(HttpUser):
 
     def create_traces_continuously(self):
         index = 0
+    
         while True:
             if index > self.base_rider_vehicles_combination:
-                    index=0
+                index = 0 
+    
             try:
-                self.runner.run_insert_traces(index)
+                # Generate a new random index in every iteration
+                random_coordinate_index = random.randint(0, 10)
+                lat_long_combinations = get_json_entries_based_on_index("lat_long_clusters", random_coordinate_index, "public")
+    
+                if len(lat_long_combinations) < 2:
+                    logger.error("Insufficient data returned from get_json_entries_based_on_index")
+                    continue  
+    
+                
+                self.runner.run_insert_traces(index, lat_long_combinations[0], lat_long_combinations[1])
+    
                 time.sleep(180)
-                index=index+1
+                index += 1
+    
             except Exception as e:
                 logger.error(f"Error creating traces: {e}")
-                time.sleep(180)
+                time.sleep(180)  # Avoid immediate retries in case of an error
+
 
     @task
     @tag("driver")

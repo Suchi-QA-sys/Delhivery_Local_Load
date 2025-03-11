@@ -1,5 +1,7 @@
 import time
-import random 
+import random
+import os
+import shutil
 
 
 def generate_curl(method, url, headers=None, data=None):
@@ -20,4 +22,14 @@ def generate_13_digit_number():
     timestamp_ms = int(time.time() * 1000)  # Current timestamp in milliseconds (first 10 digits)
     random_part = random.randint(100, 999)  # Random 3-digit number
 
-    return str(timestamp_ms)[:10] + str(random_part)  
+    return str(timestamp_ms)[:10] + str(random_part)
+
+
+def delete_all_files_of_directory(dir_name):
+    data_dir = dir_name
+    if os.path.exists(data_dir):
+        shutil.rmtree(data_dir)
+        print(f"🗑️ Deleted all files in '{data_dir}' directory.")
+    else:
+        print(f"⚠️ Directory '{data_dir}' does not exist.")
+

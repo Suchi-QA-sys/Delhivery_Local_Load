@@ -1,12 +1,18 @@
 import json 
 import logging
+import os
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 def get_latest_entry_with_value(file_name,value,avoid_values):
-    file_path = f"{file_name}.json"
+    # Ensure the "data" directory exists
+    data_dir = "data"
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Define the full file path inside the "data" directory
+    file_path = os.path.join(data_dir, f"{file_name}.json")
     try:
         with open(file_path, "r") as file:
             data = json.load(file)
@@ -26,8 +32,13 @@ def get_latest_entry_with_value(file_name,value,avoid_values):
         logger.error(f"Error reading JSON file: {e}")
         return None
 
-def get_json_entries_based_on_index(file_name, index):
-    file_path = f"{file_name}.json"
+def get_json_entries_based_on_index(file_name, index,directory_name="data"):
+
+    data_dir = directory_name
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Define the full file path inside the "data" directory
+    file_path = os.path.join(data_dir, f"{file_name}.json")
     try:
         with open(file_path, "r") as file:
             data = json.load(file)

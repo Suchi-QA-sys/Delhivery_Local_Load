@@ -69,9 +69,9 @@ class Runner:
             return
         self.create_order_module.create_order(self.token)
 
-    def run_insert_traces(self,index):
+    def run_insert_traces(self,index,lat,long):
         if not self.token:
             print("No token available. Skipping driver creation.")
             return
         self.riders_vehicles  = get_json_entries_based_on_index("rider_vehicle_mapping",index)
-        self.insert_track_traces_module.create_track(self.token,self.riders_vehicles[0],self.riders_vehicles[1])
+        self.insert_track_traces_module.create_track(self.token,self.riders_vehicles[0],self.riders_vehicles[1],lat, long)
