@@ -3,11 +3,11 @@ base_url_primary: "https://delvjkninl.sandbox.getos1.com/"
 base_url_thunderbolt : "https://thunderbolt-api.pntrzz.com/"
 base_url_os1_sandbox : "https://os1devs.sandbox.getos1.com/"
 base_url_sandbox: "https://local.sandbox.getos1.com/"
-base_url_vehicle: "https://delvjkninl.sandbox.getos1.com/"
 
 #configuration
 enabled_tags: ["OrderAllocationFlow"]
-base_riders_vehicles: 3
+base_riders_vehicles: 1
+base_orders: 2
 
 #endpoints
 attendance_endpoint: "local/api/v1/drivers/attendance"
@@ -17,7 +17,10 @@ create_vehicle_endpoint: "app/api/v2/vehicles"
 create_order_endpoint: "api/dlvlocal/v2/package"
 create_dispatch_endpoint: "app/fpa/dispatch/graphql"
 get_order_id_endpoint: "local/api/v1/order-service/orders/es"
-create_traces_endpoint: "/ocal/api/track/v1/smart-phone"
+create_track_endpoint: "local/api/track/v1/smart-phone"
+insert_traces_endpoint: "local/api/track/v1/track/"
+get_vehicle_number_endpoint: "app/api/v2/vehicles/"
+get_allocation_id_endpoint: ""
 
 
 #critical creds
@@ -33,6 +36,11 @@ rider:
   client_secret: "51e215ac-a2a6-486e-83de-c3f94b647618"
   audience: "platform:app:coreos"
   x_coreos_tid: "delvjkninl"
+
+vehicle_number:
+  clientId: "platform:app:service:9a9a2818-d1d3-5aaf-a6a0-251db185b7d1"
+  clientSecret": "b01ef601-6c4d-4053-b2d9-f548b1a46b06"
+  audience: "platform:app:coreos"
   
 teams:
   team_id: "teams:59d75559-a342-58f3-ad9b-c55f1dcc7c24"

@@ -5,8 +5,9 @@ from apis.create_vehicle import CreateVehicleModule
 from apis.create_order import CreateOrderModule
 from apis.rider_token import RiderAuthModule
 from apis.vehicle_token import VehicleAuthModule
-from flows.order_happy_flow import OrderHappyFlow
+from apis.insert_track_traces import InsertTrackTracesModule
 from utils.file_reader import get_json_entries_based_on_index
+from utils.config_loader import CONFIG
 
 class Runner:
     def __init__(self, user):
@@ -19,8 +20,9 @@ class Runner:
         self.create_driver_module = CreateDriverModule(self.client,)
         self.create_vehicle_module = CreateVehicleModule(self.client)
         self.create_order_module = CreateOrderModule(self.client)
-        self.order_happy_flow_module = OrderHappyFlow(self.client)
+        self.insert_track_traces_module = InsertTrackTracesModule(self.client)
         self.token = None  
+        self.base_rider_vehicles_combination = CONFIG["base_riders_vehicles"]
 
     def setup_auth(self):
         self.token = self.auth_module.get_auth_token()
@@ -66,6 +68,10 @@ class Runner:
             print("No token available. Skipping driver creation.")
             return
         self.create_order_module.create_order(self.token)
-        
-    def run_order_happy_flow(self):
-        self.order_happy_flow_module.run_order_flow(self.token,self.rider_token)
+
+    def run_insert_traces(self,index):
+        if not self.token:
+            print("No token available. Skipping driver creation.")
+            return
+        self.riders_vehicles  = get_json_entries_based_on_index("rider_vehicle_mapping",index)
+        self.insert_track_traces_module.create_track(self.token,self.riders_vehicles[0],self.riders_vehicles[1])

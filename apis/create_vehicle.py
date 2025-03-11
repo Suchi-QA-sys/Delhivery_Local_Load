@@ -14,7 +14,7 @@ class CreateVehicleModule(HttpUser):
 
     def __init__(self, client):
         logger.info("Inside")
-        base_url = CONFIG["base_url_vehicle"]
+        base_url = CONFIG["base_url_primary"]
         self.create_vehicle_url = base_url + CONFIG["create_vehicle_endpoint"]
         self.client = client
         self.teamid = CONFIG["teams"]["team_id"]
