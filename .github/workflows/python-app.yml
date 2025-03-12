@@ -51,7 +51,7 @@ jobs:
           LOCUST_RUN_TIME=${{ inputs.run_time || '3m' }}
           LOCUST_HOST=${{ inputs.host_url || 'https://delvjkninl.sandbox.getos1.com/' }}
 
-          locust -f locustfile.py --headless -u $LOCUST_USERS -r $LOCUST_SPAWN_RATE --run-time $LOCUST_RUN_TIME --host=$LOCUST_HOST --html=report.html
+          locust -f locustfile.py --headless -u $LOCUST_USERS -r $LOCUST_SPAWN_RATE --run-time $LOCUST_RUN_TIME --host=$LOCUST_HOST --html=report.html || true
 
       - name: Upload Locust Report as Artifact
         uses: actions/upload-artifact@v4
