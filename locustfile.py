@@ -9,6 +9,7 @@ from utils.file_reader import get_json_entries_based_on_index
 import threading
 import time
 import logging
+from locust import events
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -36,23 +37,21 @@ class LoadTest(HttpUser):
             traces_thread.start()
             logger.info("Started background traces creation thread")
 
+
     def create_traces_continuously(self):
         index = 0
-    
-        while True:
+        while self.environment.runner.state in ["spawning", "running"]:  # Only run if Locust is active
             if index > self.base_rider_vehicles_combination:
-                index = 0 
+                index = 0
     
             try:
-                # Generate a new random index in every iteration
                 random_coordinate_index = random.randint(0, 10)
                 lat_long_combinations = get_json_entries_based_on_index("lat_long_clusters", random_coordinate_index, "public")
     
                 if len(lat_long_combinations) < 2:
-                    logger.error("Insufficient data returned from get_json_entries_based_on_index")
-                    continue  
+                    logger.error("Insufficient data returned")
+                    continue
     
-                
                 self.runner.run_insert_traces(index, lat_long_combinations[0], lat_long_combinations[1])
     
                 time.sleep(180)
@@ -60,7 +59,8 @@ class LoadTest(HttpUser):
     
             except Exception as e:
                 logger.error(f"Error creating traces: {e}")
-                time.sleep(180)  
+                time.sleep(180)
+
 
 
     @task
