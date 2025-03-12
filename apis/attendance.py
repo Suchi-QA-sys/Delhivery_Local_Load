@@ -18,7 +18,7 @@ class AttendanceModule:
         self.client = client
         self.last_action = "punch_in"
 
-    def mark_attendance(self, token,riderID, vehicleID, lat, long):
+    def mark_attendance(self, token,riderID, vehicleID, lat, long, action):
         if not token:
             logging.error("Error: No authentication token provided. Attendance request aborted.")
             print("Error: No authentication token provided. Attendance request aborted.")
@@ -46,7 +46,7 @@ class AttendanceModule:
         payload = {
             "userId": riderID,
             "vehicleId": vehicleID,
-            "action": self.last_action,
+            "action": action,
             "lat": lat,
             "long": long
         }

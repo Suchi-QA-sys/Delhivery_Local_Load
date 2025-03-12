@@ -18,6 +18,10 @@ def setup_initial_data(runner):
         
     for i in range(base_rider_vehicles_combination):
         runner.run_create_vehicle()
+        
+    for i in range(base_rider_vehicles_combination):
+        runner.run_attendance(i,"punch_out")
+        runner.run_attendance(i,"punch_in")
 
     
     for i in range(base_order_combination):

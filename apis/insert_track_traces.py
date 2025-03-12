@@ -48,7 +48,7 @@ class InsertTrackTracesModule(HttpUser):
                         ],
                         "md": "REST",
                         "seq": 1015,
-                        "tis": 1739254763000,
+                        "tis": int(time.time() * 1000),
                         "accuracy": 1.8,
                         "distance": 0.0,
                         "isMobile": True,

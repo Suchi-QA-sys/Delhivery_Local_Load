@@ -97,8 +97,9 @@ class CreateOrderModule(HttpUser):
             },
             "pickup_date": "1741149092",
             "payment_method": "pay at delivery",
-            "vehicle_type": "3-wheeler"
+            "vehicle_type": "2-wheeler"
         }
+
 
         curl_command = generate_curl("POST", self.create_order_url, headers, payload)
         logger.info(f"Executing: {curl_command}")
