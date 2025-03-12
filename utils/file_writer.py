@@ -1,4 +1,6 @@
 import os
+import json
+
 
 def write_to_file(file_name, content):
     # Ensure the "data" directory exists
@@ -13,7 +15,6 @@ def write_to_file(file_name, content):
 
     print(f"✅ Content written to {file_path}")
 
-import json
 
 def append_to_json(file_name, key, value):
     # Ensure the "data" directory exists
@@ -53,9 +54,9 @@ def update_json_value(file_name, key, new_value):
                 json.dump(data, file, indent=4)
                 file.truncate()  # Ensure no old data remains
 
-        # Add an explicit flush to force writing changes
+        
         with open(f"{file_name}.json", "r") as verify_file:
-            json.load(verify_file)  # Ensures the file is fully written before proceeding
+            json.load(verify_file)  
 
     except Exception as e:
         print(f"Error updating JSON file: {e}")

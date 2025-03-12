@@ -4,6 +4,7 @@ from locust import HttpUser, task, between, tag
 from runner import Runner
 from utils.config_loader import CONFIG
 from flows.setup_flows import setup_initial_data
+from flows.setup_broadcast_flows import setup_broadcast_flows
 from utils.file_reader import get_json_entries_based_on_index
 import threading
 import time
@@ -22,6 +23,7 @@ class LoadTest(HttpUser):
         self.ENABLED_TAGS = CONFIG["enabled_tags"]
         logger.info(f"Enabled tags: {self.ENABLED_TAGS}")
         self.base_rider_vehicles_combination = CONFIG["base_riders_vehicles"]
+        self.combinations_allocations_broadcasts = []
 
         setup_initial_data(self.runner)
 
@@ -54,7 +56,7 @@ class LoadTest(HttpUser):
     
             except Exception as e:
                 logger.error(f"Error creating traces: {e}")
-                time.sleep(180)  # Avoid immediate retries in case of an error
+                time.sleep(180)  
 
 
     @task
@@ -71,9 +73,24 @@ class LoadTest(HttpUser):
             logger.info("Inside")
             self.runner.run_create_vehicle()
 
-    @task
-    @tag("order")
+    @task(2)
+    @tag("OrderAllocationFlow")
     def create_order(self):
-        if "order" in self.ENABLED_TAGS:
-            self.runner.run_create_order()
+        if "OrderAllocationFlow" in self.ENABLED_TAGS:
+            job_id =self.runner.run_create_order()
+            if job_id:
+                allocations_broadcasts = setup_broadcast_flows(self.runner,job_id)
+                self.combinations_allocations_broadcasts.append(allocations_broadcasts)
+                if len(allocations_broadcasts) > 1:
+                    LoadTest.order_created = True
+            else:
+                logging.error("No Job ID Found , Allocation and Broadcast call not made")
+            
+    @task
+    @tag("OrderAllocationFlow")
+    def create_broadcast_action(self):
+        if "OrderAllocationFlow" in self.ENABLED_TAGS and LoadTest.order_created:
+            response =self.runner.run_create_order()
+            if response:
+                LoadTest.order_created = True
 
