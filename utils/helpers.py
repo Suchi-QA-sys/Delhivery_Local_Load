@@ -1,17 +1,25 @@
 import time
 import random
 import os
+import json
 import shutil
+import urllib.parse
 
 
-def generate_curl(method, url, headers=None, data=None):
+def generate_curl(method, url, headers=None, params=None, data=None):
     curl_command = f"curl --location --request {method.upper()} '{url}'"
 
     if headers:
         for key, value in headers.items():
             curl_command += f" \\\n--header '{key}: {value}'"
 
+    if params:
+        curl_command += f" \\\n--get --data-urlencode '{params}'"
+
     if data:
+        import json
+        if isinstance(data, dict):
+            data = json.dumps(data)
         curl_command += f" \\\n--data '{data}'"
 
     print("\nGenerated cURL Command:\n" + curl_command)
@@ -32,4 +40,8 @@ def delete_all_files_of_directory(dir_name):
         print(f"🗑️ Deleted all files in '{data_dir}' directory.")
     else:
         print(f"⚠️ Directory '{data_dir}' does not exist.")
+
+def encode_query_params(query_dict):
+    json_str = json.dumps(query_dict, separators=(",", ":"))  # Minified JSON
+    return json_str
 

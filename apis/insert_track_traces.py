@@ -70,7 +70,7 @@ class InsertTrackTracesModule(HttpUser):
 
             if response.status_code == 200:
                 logging.info("Smartphone tracing inserted successful: %s", response.json())
-                append_to_json("track_traces_mapping", track_id, "Traces Pushed")
+                append_to_json("track_traces_mapping", track_id, f"Traces Pushed: Lat-{lat} Long-{long} Rider-{rider_id}")
                 print("Smartphone tracing inserted successful:", response.json())
             else:
                 logging.error("Error in smartphone tracing inserted. Status Code: %s, Response: %s", response.status_code, response.text)

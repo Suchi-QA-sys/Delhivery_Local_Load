@@ -1,9 +1,10 @@
 import json
 import requests
 import logging
+import urllib.parse
 from utils.config_loader import CONFIG
-from utils.helpers import generate_curl
-from utils.file_write import update_json_value
+from utils.helpers import generate_curl,encode_query_params
+from utils.file_writer import update_json_value
 
 # Configure logging
 logging.basicConfig(
@@ -12,7 +13,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-class GetBroadCastIDModule:
+class GetBroadcastIDModule:
     def __init__(self, client):
         base_url = CONFIG["base_url_primary"]
         self.get_broadcast_id_url = base_url + CONFIG["get_broadcast_id_endpoint"]
@@ -33,17 +34,15 @@ class GetBroadCastIDModule:
             "Content-Type": "application/json"
         }
 
-        query_params = {
-            "query": json.dumps({
-                "arr": [{
-                    "key": "allocationId.keyword",
-                    "value": f"allocationJobs:{allocation_id}",
-                    "expr": "eq"
-                }],
-                "op": "and"
-            })
-        }
+        encoded_query = encode_query_params({
+            "arr": [
+                {"key": "allocationId.keyword", "value": allocation_id, "expr": "eq"}
+            ],
+            "op": "and"
+        })
 
+        query_params = {"query": encoded_query}
+        
         url = f"{self.get_broadcast_id_url}"
 
         # Log the generated cURL command
@@ -57,7 +56,7 @@ class GetBroadCastIDModule:
             if response.status_code == 200:
                 logging.info("Broadcast lists retrieved successfully: %s", response.json())
                 print("Broadcast lists retrieved successfully:", response.json())
-                broadcast_id = response.json().get("data",{}).get("id",{})
+                broadcast_id = response.json().get("data",{}).get("entityInstances",{})[0].get("id")
                 update_json_value("allocationID_broadcastID_mapping",allocation_id,broadcast_id)
                 return broadcast_id
             else:
