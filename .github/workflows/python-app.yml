@@ -3,6 +3,24 @@ name: Locust Performance Test
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      users:
+        description: "Number of users (u)"
+        required: true
+        default: "10"
+      spawn_rate:
+        description: "Spawn rate (r)"
+        required: true
+        default: "2"
+      run_time:
+        description: "Run time (e.g., 3m, 5m)"
+        required: true
+        default: "3m"
+      host_url:
+        description: "Host URL"
+        required: true
+        default: "https://delvjkninl.sandbox.getos1.com/"
 
 permissions:
   contents: read
@@ -26,6 +44,12 @@ jobs:
           pip install locust
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run Locust Test
+      - name: Run Locust Test and Generate Report
         run: |
-          locust -f locustfile.py --headless -u 10 -r 2 --run-time 3m --host=https://delvjkninl.sandbox.getos1.com/
+          locust -f locustfile.py --headless -u ${{ inputs.users }} -r ${{ inputs.spawn_rate }} --run-time ${{ inputs.run_time }} --host=${{ inputs.host_url }} --html=report.html
+
+      - name: Upload Locust Report as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: locust-report
+          path: report.html
