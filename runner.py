@@ -8,6 +8,7 @@ from apis.vehicle_token import VehicleAuthModule
 from apis.insert_track_traces import InsertTrackTracesModule
 from apis.get_allocation_id import GetAllocationIDModule
 from apis.get_broadcast_id import GetBroadcastIDModule
+from apis.broadcast_action import BroadCastActionModule
 from utils.file_reader import get_json_entries_based_on_index
 from utils.config_loader import CONFIG
 import urllib.parse
@@ -26,6 +27,7 @@ class Runner:
         self.insert_track_traces_module = InsertTrackTracesModule(self.client)
         self.get_allocation_id_module = GetAllocationIDModule(self.client)
         self.get_broadcast_id_module = GetBroadcastIDModule(self.client)
+        self.broadcast_action_module = BroadCastActionModule(self.client)
         self.token = None
         self.base_rider_vehicles_combination = CONFIG["base_riders_vehicles"]
 
@@ -48,12 +50,12 @@ class Runner:
         else:
             print(f"Vehicle Token fetched successfully: {self.vehicle_token}")
 
-    def run_attendance(self, index):
+    def run_attendance(self, index,action):
         if not self.token:
             print("No token available. Skipping attendance marking.")
             return
         self.riders_vehicles = get_json_entries_based_on_index("rider_vehicle_mapping", index)
-        self.attendance_module.mark_attendance(self.token, self.riders_vehicles[0], self.riders_vehicles[1], 23.040233, 72.566623)
+        self.attendance_module.mark_attendance(self.token, self.riders_vehicles[0], self.riders_vehicles[1], 23.040233, 72.566623,action)
 
     def run_create_driver(self):
         if not self.token:
@@ -95,9 +97,9 @@ class Runner:
         broadcast_id = self.get_broadcast_id_module.get_broadcast_lists(self.token, allocation_id)
         return broadcast_id
 
-    def run_broadcast_action(self, allocation_id):
+    def run_broadcast_action(self, allocation_id, broadcast_id, rider_id):
         if not self.token:
             print("No token available. Skipping broadcast ID retrieval.")
             return
-        broadcast_id = self.get_broadcast_id_module.get_broadcast_lists(self.token, allocation_id)
+        broadcast_id = self.broadcast_action_module.punch_broadcast_action(self.token, allocation_id,broadcast_id,rider_id)
         return broadcast_id

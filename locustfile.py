@@ -24,6 +24,10 @@ class LoadTest(HttpUser):
         logger.info(f"Enabled tags: {self.ENABLED_TAGS}")
         self.base_rider_vehicles_combination = CONFIG["base_riders_vehicles"]
         self.combinations_allocations_broadcasts = []
+        self.order_created = False
+        self.rider_index = 0
+        self.last_broadcast = 0
+        
 
         setup_initial_data(self.runner)
 
@@ -82,15 +86,19 @@ class LoadTest(HttpUser):
                 allocations_broadcasts = setup_broadcast_flows(self.runner,job_id)
                 self.combinations_allocations_broadcasts.append(allocations_broadcasts)
                 if len(allocations_broadcasts) > 1:
-                    LoadTest.order_created = True
+                    self.order_created = True
             else:
                 logging.error("No Job ID Found , Allocation and Broadcast call not made")
             
     @task
     @tag("OrderAllocationFlow")
     def create_broadcast_action(self):
-        if "OrderAllocationFlow" in self.ENABLED_TAGS and LoadTest.order_created:
-            response =self.runner.run_create_order()
-            if response:
-                LoadTest.order_created = True
+        if "OrderAllocationFlow" in self.ENABLED_TAGS and self.order_created:
+            if self.rider_index < len(self.base_rider_vehicles_combination):
+                rider_vehicle_set = get_json_entries_based_on_index("rider_vehicle_mapping",self.rider_index)
+                self.runner.run_broadcast_action(rider_vehicle_set[0],self.combinations_allocations_broadcasts[self.last_broadcast][0],self.combinations_allocations_broadcasts[self.last_broadcast][1])
+                self.last_broadcast+=1
+                self.rider_index+=1
+            else:
+                return
 
